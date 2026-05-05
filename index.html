@@ -410,10 +410,14 @@ function placePainting(art, idx) {
       const ph = 1.55;
       const pw = ph * aspect;
 
+      // Positions: offset away from wall (into room) using -side * distance
+      const frameX  = px - side * 0.02;   // frame sits just off the wall
+      const canvasX = px - side * 0.05;   // canvas in front of frame face
+
       // Outer frame
       const fg = new THREE.BoxGeometry(pw + 0.18, ph + 0.18, 0.05);
       const fm = new THREE.Mesh(fg, matFrame);
-      fm.position.set(px + side * 0.04, py, pz);
+      fm.position.set(frameX, py, pz);
       fm.rotation.y = ry;
       fm.castShadow = true;
       scene.add(fm);
@@ -421,7 +425,7 @@ function placePainting(art, idx) {
       // Inner frame reveal
       const fg2 = new THREE.BoxGeometry(pw + 0.06, ph + 0.06, 0.06);
       const fm2 = new THREE.Mesh(fg2, matFrameInner);
-      fm2.position.set(px + side * 0.05, py, pz);
+      fm2.position.set(frameX, py, pz);
       fm2.rotation.y = ry;
       scene.add(fm2);
 
@@ -429,23 +433,24 @@ function placePainting(art, idx) {
       const cg = new THREE.PlaneGeometry(pw, ph);
       const cm = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.82 });
       const canvas = new THREE.Mesh(cg, cm);
-      canvas.position.set(px + side * 0.07, py, pz);
+      canvas.position.set(canvasX, py, pz);
       canvas.rotation.y = ry;
       canvas.userData = { art };
       scene.add(canvas);
       clickables.push(canvas);
 
-      // Gallery spot above painting
+      // Gallery spot: positioned inside the room, angled down at canvas
       const spotY = ROOM_H - 0.15;
+      const spotX = side * (ROOM_W / 2 - 1.4);  // 1.4 units from wall, inside room
       const spot = new THREE.SpotLight(0xfff5d6, 3.5, 10, Math.PI / 9, 0.45, 1.8);
-      spot.position.set(px + side * 1.0, spotY, pz);
+      spot.position.set(spotX, spotY, pz);
       spot.castShadow = true;
       spot.shadow.mapSize.set(512, 512);
       spot.shadow.camera.near = 0.5;
       spot.shadow.camera.far  = 12;
 
       const spotTarget = new THREE.Object3D();
-      spotTarget.position.set(px + side * 0.07, py, pz);
+      spotTarget.position.set(canvasX, py, pz);
       scene.add(spotTarget);
       spot.target = spotTarget;
       scene.add(spot);
