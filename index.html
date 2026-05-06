@@ -412,7 +412,7 @@ function placePainting(art, idx) {
 
       // Positions: offset away from wall (into room) using -side * distance
       const frameX  = px - side * 0.02;   // frame sits just off the wall
-      const canvasX = px - side * 0.05;   // canvas in front of frame face
+      const canvasX = px - side * 0.10;   // canvas clearly in front of frame face
 
       // Outer frame
       const fg = new THREE.BoxGeometry(pw + 0.18, ph + 0.18, 0.05);
@@ -422,16 +422,19 @@ function placePainting(art, idx) {
       fm.castShadow = true;
       scene.add(fm);
 
-      // Inner frame reveal
+      // Inner frame reveal — positioned slightly behind canvas to avoid z-fighting
       const fg2 = new THREE.BoxGeometry(pw + 0.06, ph + 0.06, 0.06);
       const fm2 = new THREE.Mesh(fg2, matFrameInner);
-      fm2.position.set(frameX, py, pz);
+      fm2.position.set(frameX - side * 0.01, py, pz);
       fm2.rotation.y = ry;
       scene.add(fm2);
 
-      // Canvas
+      // Canvas — polygon offset ensures it always wins over any overlapping geometry
       const cg = new THREE.PlaneGeometry(pw, ph);
-      const cm = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.82 });
+      const cm = new THREE.MeshStandardMaterial({
+        map: tex, roughness: 0.82,
+        polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+      });
       const canvas = new THREE.Mesh(cg, cm);
       canvas.position.set(canvasX, py, pz);
       canvas.rotation.y = ry;
